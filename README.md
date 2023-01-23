@@ -20,6 +20,8 @@ joan.book({
 })
 .then(res => console.log(res))
 .catch(err => console.error(err))
+
+joan.accessToken().then(token => console.log(token))
 ```
 
 ### API

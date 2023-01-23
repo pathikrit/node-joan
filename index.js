@@ -5,8 +5,16 @@ const axios = require('axios')
 class JoanApiClient {
 	static apiHost = 'https://portal.getjoan.com'
 	static apiVersion = '1.0'
-	static refreshTokenIfExpiresIn = 60	// Refresh the token if it expires in 60s
-	#accessToken = null
+	static refreshTokenIfExpiresIn = 60	// Refresh the token if it expires in these many seconds
+
+	static call = (token, method, path, data) => axios({
+		method: method,
+		url: `${JoanApiClient.apiHost}/api/v${JoanApiClient.apiVersion}/${path}/`,
+		headers: {'Authorization': `Bearer ${token.access_token}`},
+		data: data
+	})
+
+	call = (method, path, data) => this.accessToken().then(token => JoanApiClient.call(token, method, path, data)).then(res => res.data)
 
 	constructor(client_id, client_secret) {
 		this.credentials = new ClientCredentials({
@@ -16,16 +24,8 @@ class JoanApiClient {
 		this.#accessToken = this.credentials.getToken()
 	}
 
-	accessToken = () => this.#accessToken.then(accessToken => true || accessToken.expired(JoanApiClient.refreshTokenIfExpiresIn) ? (this.#accessToken = this.credentials.getToken()) : accessToken)
-
-	call = (method, path, data) =>
-		this.accessToken().then(access => axios({
-				method: method,
-				url: `${JoanApiClient.apiHost}/api/v${JoanApiClient.apiVersion}/${path}/`,
-				headers: {'Authorization': `Bearer ${access.token.access_token}`},
-				data: data
-			}))
-			.then(res => res.data)
+	#accessToken
+	accessToken = () => this.#accessToken.then(accessToken => accessToken.expired(JoanApiClient.refreshTokenIfExpiresIn) ? (this.#accessToken = this.credentials.getToken()) : accessToken).then(res => res.token)
 
 	get = (path) => this.call('GET', path)
 	post = (path, data) => this.call('POST', path, data)
