@@ -62,9 +62,7 @@ joan.options(path)
 
 ### TODO
 ```
-Upgrade library
-token refresh before expiry
-ask em to use library
-ask to deprecate
+https://github.com/coFactory/factory-slack-app/
+https://github.com/wmlutz/joanapi
 node badge
 ```

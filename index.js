@@ -16,7 +16,7 @@ class JoanApiClient {
 	}
 
 	call = (method, path, data) =>
-		(this.#accessToken && !this.#accessToken.expired(this.refreshTokenIfExpiresIn) ? Promise.resolve(null) : this.newAccessToken())
+		(this.#accessToken && !this.#accessToken.expired(JoanApiClient.refreshTokenIfExpiresIn) ? Promise.resolve(null) : this.newAccessToken())
 			.then(() => axios({
 				method: method,
 				url: `${JoanApiClient.apiHost}/api/v${JoanApiClient.apiVersion}/${path}/`,
