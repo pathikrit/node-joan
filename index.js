@@ -13,14 +13,16 @@ class JoanApiClient {
 			client: {id: client_id, secret: client_secret},
 			auth: {tokenHost: JoanApiClient.apiHost, tokenPath: '/api/token/'}
 		})
+		this.#accessToken = this.credentials.getToken()
 	}
 
+	accessToken = () => this.#accessToken.then(accessToken => true || accessToken.expired(JoanApiClient.refreshTokenIfExpiresIn) ? (this.#accessToken = this.credentials.getToken()) : accessToken)
+
 	call = (method, path, data) =>
-		(this.#accessToken && !this.#accessToken.expired(JoanApiClient.refreshTokenIfExpiresIn) ? Promise.resolve(null) : this.newAccessToken())
-			.then(() => axios({
+		this.accessToken().then(access => axios({
 				method: method,
 				url: `${JoanApiClient.apiHost}/api/v${JoanApiClient.apiVersion}/${path}/`,
-				headers: {'Authorization': `Bearer ${this.#accessToken.token.access_token}`},
+				headers: {'Authorization': `Bearer ${access.token.access_token}`},
 				data: data
 			}))
 			.then(res => res.data)
@@ -31,8 +33,6 @@ class JoanApiClient {
 	patch = (path, data) => this.call('PATCH', path, data)
 	delete = (path, data) => this.call('DELETE', path, data)
 	options = (path) => this.call('OPTIONS', path)
-
-	newAccessToken = () => this.credentials.getToken().then(accessToken => {return this.#accessToken = accessToken})
 
 	me = () => this.get('me')
 	users = () => this.get('users')

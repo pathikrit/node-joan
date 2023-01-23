@@ -24,10 +24,10 @@ joan.book({
 
 ### API
 ```js
+joan.accessToken()
 joan.me()
 joan.devices()
 joan.users()
-joan.newAccessToken() // Get a new access token
 
 // Rooms APIs
 joan.rooms.get()
