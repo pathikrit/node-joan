@@ -1,24 +1,25 @@
-const oauth2lib = require('simple-oauth2')
+const {ClientCredentials} = require('simple-oauth2')
 const axios = require('axios')
 
 /** API client to interact with Visionect display via the Joan API: https://portal.getjoan.com/api/docs/ */
 class JoanApiClient {
-	static apiHost = 'https://portal.getjoan.com/api'
+	static apiHost = 'https://portal.getjoan.com'
 	static apiVersion = '1.0'
+	static refreshTokenIfExpiresIn = 60	// Refresh the token if it expires in 60s
 	#accessToken = null
 
 	constructor(client_id, client_secret) {
-		this.oauth2 = oauth2lib.create({
+		this.credentials = new ClientCredentials({
 			client: {id: client_id, secret: client_secret},
-			auth: {tokenHost: JoanApiClient.apiHost, tokenPath: '/token/'}
+			auth: {tokenHost: JoanApiClient.apiHost, tokenPath: '/api/token/'}
 		})
 	}
 
 	call = (method, path, data) =>
-		(this.#accessToken && !this.#accessToken.expired() ? Promise.resolve(null) : this.newAccessToken())
+		(this.#accessToken && !this.#accessToken.expired(this.refreshTokenIfExpiresIn) ? Promise.resolve(null) : this.newAccessToken())
 			.then(() => axios({
 				method: method,
-				url: `${JoanApiClient.apiHost}/v${JoanApiClient.apiVersion}/${path}/`,
+				url: `${JoanApiClient.apiHost}/api/v${JoanApiClient.apiVersion}/${path}/`,
 				headers: {'Authorization': `Bearer ${this.#accessToken.token.access_token}`},
 				data: data
 			}))
@@ -31,7 +32,7 @@ class JoanApiClient {
 	delete = (path, data) => this.call('DELETE', path, data)
 	options = (path) => this.call('OPTIONS', path)
 
-	newAccessToken = () => this.oauth2.clientCredentials.getToken().then(result => {return this.#accessToken = this.oauth2.accessToken.create(result)})
+	newAccessToken = () => this.credentials.getToken().then(accessToken => {return this.#accessToken = accessToken})
 
 	me = () => this.get('me')
 	users = () => this.get('users')
