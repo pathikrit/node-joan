@@ -1,4 +1,4 @@
-This is a lightweight nodejs Promise based API wrapper around the [Joan API](https://portal.getjoan.com/api/docs/)
+This is a lightweight nodejs Promise based wrapper around the [Joan API](https://portal.getjoan.com/api/docs/)
 
 ### Installing
 ```sh
@@ -37,7 +37,7 @@ joan.rooms.put(id, data)
 joan.rooms.patch(id, data)
 joan.rooms.delete(id, data)
 joan.rooms.book(data)
-	
+
 // Events APIs
 joan.events.cancel(data)
 joan.events.checkin(data)
@@ -50,7 +50,7 @@ joan.events.reject(data)
 ```
 
 ### Primitive APIs
-Although, all the APIs are covered by above utils, you can still call any API by using one of the following primitive HTTP APIs:
+Directly call any HTTP endpoints using the following low level utils:
 ```js
 joan.get(path)
 joan.post(path, data)
@@ -62,9 +62,7 @@ joan.options(path)
 
 ### TODO
 ```
-joan.options(path)
 Upgrade library
-rename newToken to newAccessToken()
 token refresh before expiry
 ask em to use library
 ask to deprecate

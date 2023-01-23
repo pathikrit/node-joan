@@ -1,7 +1,7 @@
 const oauth2lib = require('simple-oauth2')
 const axios = require('axios')
 
-/** API client to interact with Visonect display via the Joan API: https://portal.getjoan.com/api/docs/ */
+/** API client to interact with Visionect display via the Joan API: https://portal.getjoan.com/api/docs/ */
 class JoanApiClient {
 	static apiHost = 'https://portal.getjoan.com/api'
 	static apiVersion = '1.0'
@@ -15,7 +15,7 @@ class JoanApiClient {
 	}
 
 	call = (method, path, data) =>
-		(this.#accessToken && !this.#accessToken.expired() ? Promise.resolve(null) : this.newToken())
+		(this.#accessToken && !this.#accessToken.expired() ? Promise.resolve(null) : this.newAccessToken())
 			.then(() => axios({
 				method: method,
 				url: `${JoanApiClient.apiHost}/v${JoanApiClient.apiVersion}/${path}/`,
@@ -29,8 +29,9 @@ class JoanApiClient {
 	put = (path, data) => this.call('PUT', path, data)
 	patch = (path, data) => this.call('PATCH', path, data)
 	delete = (path, data) => this.call('DELETE', path, data)
+	options = (path) => this.call('OPTIONS', path)
 
-	newToken = () => this.oauth2.clientCredentials.getToken().then(result => {return this.#accessToken = this.oauth2.accessToken.create(result)})
+	newAccessToken = () => this.oauth2.clientCredentials.getToken().then(result => {return this.#accessToken = this.oauth2.accessToken.create(result)})
 
 	me = () => this.get('me')
 	users = () => this.get('users')
