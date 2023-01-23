@@ -1,11 +1,9 @@
 const {ClientCredentials} = require('simple-oauth2')
 const axios = require('axios')
 
-/** API client to interact with Visionect display via the Joan API: https://portal.getjoan.com/api/docs/ */
 class JoanApiClient {
 	static apiHost = 'https://portal.getjoan.com'
 	static apiVersion = '1.0'
-	static refreshTokenIfExpiresIn = 60	// Refresh the token if it expires in these many seconds
 
 	static call = (token, method, path, data) => axios({
 		method: method,
@@ -14,7 +12,7 @@ class JoanApiClient {
 		data: data
 	})
 
-	call = (method, path, data) => this.accessToken().then(token => JoanApiClient.call(token, method, path, data)).then(res => res.data)
+	call = (method, path, data) => this.accessToken(60).then(token => JoanApiClient.call(token, method, path, data)).then(res => res.data)
 
 	constructor(client_id, client_secret) {
 		this.credentials = new ClientCredentials({
@@ -25,7 +23,8 @@ class JoanApiClient {
 	}
 
 	#accessToken
-	accessToken = () => this.#accessToken.then(accessToken => accessToken.expired(JoanApiClient.refreshTokenIfExpiresIn) ? (this.#accessToken = this.credentials.getToken()) : accessToken).then(res => res.token)
+	/** Returns an access token; generates a new one if the current one expires in newTokenIfExpiresIn seconds (default is 0) */
+	accessToken = (newTokenIfExpiresIn = 0) => this.#accessToken.then(accessToken => accessToken.expired(newTokenIfExpiresIn) ? (this.#accessToken = this.credentials.getToken()) : accessToken).then(res => res.token)
 
 	get = (path) => this.call('GET', path)
 	post = (path, data) => this.call('POST', path, data)
@@ -43,7 +42,7 @@ class JoanApiClient {
 		put: (id, data) => this.put(`rooms/${id}`, data),
 		patch: (id, data) => this.patch(`rooms/${id}`, data),
 		delete: (id, data) => this.delete(`rooms/${id}`, data),
-		book: (data) => this.post(`get_room`, data)
+		book: (data) => this.post('get_room', data)
 	}
 	events = {
 		cancel: (data) => this.post('events/cancel', data),

@@ -1,11 +1,11 @@
 This is a lightweight nodejs Promise based wrapper around the [Joan API](https://portal.getjoan.com/api/docs/)
 
-### Installing
+## Installation [![NPM Package Version](https://img.shields.io/npm/v/node-joan.svg?)](https://www.npmjs.com/package/node-joan)
 ```sh
 npm add node-joan
 ```
 
-### Example
+## Example
 ```js
 const {JoanAPIClient} = require('node-joan');
 
@@ -24,7 +24,7 @@ joan.book({
 joan.accessToken().then(token => console.log(token))
 ```
 
-### API
+## APIs
 ```js
 joan.accessToken()
 joan.me()
@@ -60,11 +60,4 @@ joan.put(path, data)
 joan.patch(path, data)
 joan.delete(path, data)
 joan.options(path)
-```
-
-### TODO
-```
-https://github.com/coFactory/factory-slack-app/
-https://github.com/wmlutz/joanapi
-node badge
 ```
