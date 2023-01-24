@@ -10,9 +10,9 @@ class JoanApiClient {
 		url: `${JoanApiClient.apiHost}/api/v${JoanApiClient.apiVersion}/${path}/`,
 		headers: {'Authorization': `Bearer ${token.access_token}`},
 		data: data
-	})
+	}).then(res => res.data)
 
-	call = (method, path, data) => this.accessToken(60).then(token => JoanApiClient.call(token, method, path, data)).then(res => res.data)
+	call = (method, path, data) => this.accessToken(60).then(token => JoanApiClient.call(token, method, path, data))
 
 	constructor(client_id, client_secret) {
 		this.credentials = new ClientCredentials({
@@ -24,7 +24,13 @@ class JoanApiClient {
 
 	#accessToken
 	/** Returns an access token; generates a new one if the current one expires in newTokenIfExpiresIn seconds (default is 0) */
-	accessToken = (newTokenIfExpiresIn = 0) => this.#accessToken.then(accessToken => accessToken.expired(newTokenIfExpiresIn) ? (this.#accessToken = this.credentials.getToken()) : accessToken).then(res => res.token)
+	accessToken = (newTokenIfExpiresIn = 0) => this.#accessToken.then(accessToken => {
+		if (accessToken.expired(newTokenIfExpiresIn)) {
+			console.debug('Refreshing expired token ...')
+			return this.#accessToken = this.credentials.getToken()
+		}
+		return accessToken
+	}).then(res => res.token)
 
 	get = (path) => this.call('GET', path)
 	post = (path, data) => this.call('POST', path, data)

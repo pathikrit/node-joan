@@ -1,6 +1,6 @@
 {
   "name": "node-joan",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Thin nodejs client around the Joan API",
   "main": "index.js",
   "scripts": {
