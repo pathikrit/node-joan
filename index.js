@@ -19,18 +19,19 @@ class JoanApiClient {
 			client: {id: client_id, secret: client_secret},
 			auth: {tokenHost: JoanApiClient.apiHost, tokenPath: '/api/token/'}
 		})
-		this.#accessToken = this.credentials.getToken()
 	}
 
 	#accessToken
 	/** Returns an access token; generates a new one if the current one expires in newTokenIfExpiresIn seconds (default is 0) */
-	accessToken = (newTokenIfExpiresIn = 0) => this.#accessToken.then(accessToken => {
-		if (accessToken.expired(newTokenIfExpiresIn)) {
+	accessToken = (newTokenIfExpiresIn = 0) => {
+		if (!this.#accessToken) this.#accessToken = this.credentials.getToken()
+		return this.#accessToken.then(accessToken => {
+			if (!accessToken.expired(newTokenIfExpiresIn)) return accessToken
 			console.debug('Refreshing expired token ...')
+			//TODO: this should be accessToken.refresh(); see https://github.com/lelylan/simple-oauth2/issues/420
 			return this.#accessToken = this.credentials.getToken()
-		}
-		return accessToken
-	}).then(res => res.token)
+		}).then(res => res.token)
+	}
 
 	get = (path) => this.call('GET', path)
 	post = (path, data) => this.call('POST', path, data)
